@@ -13,7 +13,7 @@ using System.Web.Http.Cors;
 namespace apiSustainment.Controllers
 {
     public static class AccountPersistentStatic
-    {
+    {//https://stackoverflow.com/questions/31314301/application-level-variables-in-web-api-c-sharp
         public static string data="";
         public static string balance = "";
     }
@@ -39,8 +39,7 @@ namespace apiSustainment.Controllers
             //AccountPersistentStaic.data += "init";
             if (AccountPersistentStatic.data.Length.Equals(0))
             {//set default movements //create new array of AccountMovements
-                AccountMovement[] warrAccountMovements = { new AccountMovement { TranDateTime = System.DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), AccountNumber = "0010090", OperationType = "Debit", Amount = 100 },
-                new AccountMovement { TranDateTime = System.DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), AccountNumber = "0010090", OperationType = "Debit", Amount = 100 },
+                AccountMovement[] warrAccountMovements =  { new AccountMovement { TranDateTime = System.DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), AccountNumber = "0010090", OperationType = "Debit", Amount = 100 },
                 new AccountMovement { TranDateTime = System.DateTime.Now.ToString("MM/dd/yyyy hh:mm tt"), AccountNumber = "0010090", OperationType = "Debit", Amount = 100 } };
                 //HttpContext.Session.SetString("AccountMovements", afd.ToString() );
                 //obtain JSON text from AccountMovements Array
@@ -52,7 +51,7 @@ namespace apiSustainment.Controllers
         }
         // GET api/<controller>
         [EnableCors(origins: "*", headers: "*", methods: "*")]
-        [HttpGet()]
+        [HttpGet()] 
         public AccountMovement[] Get()
         {//serializing JSON in .Net: https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-5-0
             //get session value of account movements
@@ -84,8 +83,9 @@ namespace apiSustainment.Controllers
                 string wSessionAccountMovements = AccountPersistentStatic.data ;
                 //setup session in .net core https://docs.microsoft.com/en-us/aspnet/core/fundamentals/app-state?view=aspnetcore-5.0
                 //obtain AccountMovements Array from JSON text (from the session value)
-                double wdblNewBalance = Convert.ToDouble(AccountPersistentStatic.balance) - iNewAccountOperation.Amount;
-                if ( iNewAccountOperation.OperationType.Equals("Debit") && wdblNewBalance<0) return BadRequest("Insufficient funds");//account would be out of funds so raais an error
+                double wdblNewBalanceDebit = Convert.ToDouble(AccountPersistentStatic.balance) - iNewAccountOperation.Amount;
+                double wdblNewBalanceCredit = Convert.ToDouble(AccountPersistentStatic.balance) + iNewAccountOperation.Amount;
+                if ( iNewAccountOperation.OperationType.Equals("Debit") && wdblNewBalanceDebit<0)  return BadRequest("Insufficient funds");//account would be out of funds so raais an error
                 // 400 Bad Request
                 AccountMovement[] warrAccountMovementsRet = serializer.Deserialize<AccountMovement[]>(wSessionAccountMovements);
                 //Load data onto Object from JSON string
@@ -94,7 +94,8 @@ namespace apiSustainment.Controllers
                         OperationType = iNewAccountOperation.OperationType, Amount = iNewAccountOperation.Amount };
                 var jsonString = serializer.Serialize(warrAccountMovementsRet);//get JSON string from object
                 AccountPersistentStatic.data = jsonString;
-                AccountPersistentStatic.balance = wdblNewBalance.ToString();
+                if (iNewAccountOperation.OperationType.Equals("Debit")) AccountPersistentStatic.balance = wdblNewBalanceDebit.ToString();
+                if (iNewAccountOperation.OperationType.Equals("Credit")) AccountPersistentStatic.balance = wdblNewBalanceCredit.ToString(); 
                 return Ok("OK");//200 OK
             }
             catch (Exception ex)
