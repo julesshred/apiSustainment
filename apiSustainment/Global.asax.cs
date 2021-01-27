@@ -11,6 +11,10 @@ namespace apiSustainment
 {
     public class WebApiApplication : System.Web.HttpApplication
     {
+        protected void Application_PostAuthorizeRequest()
+        {   //enable session
+            System.Web.HttpContext.Current.SetSessionStateBehavior(System.Web.SessionState.SessionStateBehavior.Required);
+        }//https://stackoverflow.com/questions/11478244/asp-net-web-api-session-or-something
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();

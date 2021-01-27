@@ -10,7 +10,8 @@ namespace apiSustainment
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-
+            //https://docs.microsoft.com/en-us/aspnet/web-api/overview/security/enabling-cross-origin-requests-in-web-api
+            config.EnableCors();//rom nuget package asp.net CORS
             // Web API routes
             config.MapHttpAttributeRoutes();
 
