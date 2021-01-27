@@ -51,7 +51,7 @@ namespace apiSustainment.Controllers
         }
         // GET api/<controller>
         [EnableCors(origins: "*", headers: "*", methods: "*")]
-        [HttpGet()] 
+        [HttpGet()]  
         public AccountMovement[] Get()
         {//serializing JSON in .Net: https://docs.microsoft.com/en-us/dotnet/standard/serialization/system-text-json-how-to?pivots=dotnet-5-0
             //get session value of account movements
